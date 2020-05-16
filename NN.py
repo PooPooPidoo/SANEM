@@ -48,10 +48,10 @@ def set_train_data(datapath):
         print("massive loaded: ",x_train.shape,"\nPreparing dataset")
         x_train = x_train.reshape((x_train.shape[0], 24, x_train.shape[2], 1))
         x_train = x_train.astype('float32')
-        print("dataset is ready: ",x_train.shape)
         return x_train
     else:
         print("Path doesn`t exist")
+        return None
 
 # try: x_train = set_train_data("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\movements\\testmoves")
 # except(UnicodeError, SyntaxError): print("Incorrect path")
@@ -131,8 +131,8 @@ def load_model(json_modelpath, h5weightspath=None):
         else:
             print("Bad path")
 
-model = load_model("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\model\\1model.json",
-           "C:\\Users\\NoMad\\PycharmProjects\\SANEM\\model\\1weights.h5")
+# model = load_model("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\model\\1model.json",
+#            "C:\\Users\\NoMad\\PycharmProjects\\SANEM\\model\\1weights.h5")
 
 def predict_move(model, move): # для move нужен массив отобранных данных
     predictArr = model.predict(move)
@@ -159,11 +159,13 @@ def save_json_model_h5_weights(model,modelpath=None,weightspath=None):
             model_json = model.to_json()
             with open(modelpath, "w") as json_file:
                 json_file.write(model_json)
+            print("Model saved")
         else:
             print("Bad model path")
     elif(modelpath==None):
         if (os.path.exists(weightspath)):
             model.save_weights(weightspath)
+            print("Weights saved")
         else:
             print("Bad weights path")
     else:
@@ -172,6 +174,7 @@ def save_json_model_h5_weights(model,modelpath=None,weightspath=None):
             with open(modelpath, "w") as json_file:
                 json_file.write(model_json)
             model.save_weights(weightspath)
+            print("Weighted model saved")
         else:
             print("Bad weights or model path")
 
