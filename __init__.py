@@ -73,7 +73,7 @@ def mainmenu():
                   "'predictiondata' - sets the data for prediction\n"
                   "'loaddata' - sets the (x_train) data\n"
                   "'testnet' - initiates a testing of a network with model and data'\n"
-                  "'netsettings' - neural network settings\n"
+                  "'netsettings' - neural network settings\n" 
                   "'exit' - exit system")
         elif (command == 'start'):
             start_threaded_sniffer()
