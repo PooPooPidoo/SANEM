@@ -9,8 +9,11 @@ dotenv.load_dotenv("vars.env")
 varpath = dotenv.find_dotenv("vars.env")
 
 def set_datapath(datapath):
-    data_path = os.chdir(datapath)
-    print(datapath)
+    if (os.path.exists(datapath)):
+        data_path = os.chdir(datapath)
+        print(datapath)
+    else:
+        print("Path doesn`t exist")
 #set_datapath("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\movements")
 
 def set_train_data(datapath):
@@ -47,9 +50,10 @@ def set_train_data(datapath):
         x_train = x_train.astype('float32')
         print("dataset is ready: ",x_train.shape)
         return x_train
-    else: print("Path doesn`t exist")
+    else:
+        print("Path doesn`t exist")
 
-# try:set_train_data("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\movements\\testmoves")
+# try: x_train = set_train_data("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\movements\\testmoves")
 # except(UnicodeError, SyntaxError): print("Incorrect path")
 
 def set_prepared_prediction_dataset(datapath):
@@ -70,8 +74,124 @@ def set_prepared_prediction_dataset(datapath):
             test_moves.append(predict_move)
             print(f"move {file[0]+1} added!")
         print(len(test_moves))
-        return test_moves
+        return test_moves # (!)возвращает список таблиц(!)
     else:
         print("Path doesn`t exist")
-# try:set_prepared_prediction_dataset("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\movements\\prediction")
-# except(UnicodeError, SyntaxError): print("Incorrect path")
+# predict_moves = set_prepared_prediction_dataset("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\movements\\prediction")
+
+def set_y_train(filepath):
+    global y_train
+    if (os.path.exists(filepath)):
+        with open(filepath, "r") as file:
+            y_train = []
+            for line in file.readlines():
+                y_train.append(int(line))
+            y_train = keras.utils.to_categorical(y_train)
+        print(len(y_train), y_train)
+        return y_train
+    else:
+        print("Path doesn`t exist")
+# y_train = set_y_train("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\movements\\prediction_output\\prediction.txt")
+
+def set_standart_model():
+    input = keras.Input(shape=(24, x_train.shape[2], 1))
+    inputs = layers.Convolution2D(24, input_shape=(24,), kernel_size=(3, 1), activation="sigmoid")(input)
+    hidden1 = layers.Dense(8, activation="sigmoid")(inputs)
+    hidden1 = layers.Dropout(0.5)(hidden1)
+    h1 = layers.Flatten()(hidden1)
+    outputs = layers.Dense(6, activation="relu")(h1)
+    seq_model = keras.Model(inputs=input, outputs=outputs, name="sequential_or_what")
+    print(seq_model.summary())
+    seq_model.compile(
+        optimizer=keras.optimizers.Nadam(),
+        loss=keras.losses.BinaryCrossentropy(),
+        metrics=['accuracy']
+    )
+    return seq_model
+
+def load_model(json_modelpath, h5weightspath=None):
+    if(h5weightspath==None):
+        if(os.path.exists(json_modelpath)):
+            with open(json_modelpath, 'r') as json_file:
+                loaded_model_json = json_file.read()
+                json_file.close()
+                loaded_model = keras.models.model_from_json(loaded_model_json)
+                print(loaded_model.summary())
+                return loaded_model
+        else:print("Bad path")
+    else:
+        if (os.path.exists(json_modelpath)):
+            with open(json_modelpath, 'r') as json_file:
+                loaded_model_json = json_file.read()
+                json_file.close()
+                loaded_model = keras.models.model_from_json(loaded_model_json)
+                loaded_model.load_weights(h5weightspath)
+                print(loaded_model.summary())
+                return loaded_model
+        else:
+            print("Bad path")
+
+model = load_model("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\model\\1model.json",
+           "C:\\Users\\NoMad\\PycharmProjects\\SANEM\\model\\1weights.h5")
+
+def predict_move(model, move): # для move нужен массив отобранных данных
+    predictArr = model.predict(move)
+    # print(predictArr[0])
+    maxPercentage = 0
+    global movenum
+    for i in enumerate(predictArr[0]):
+        if (i[1] > maxPercentage):
+            maxPercentage = i[1]
+            movenum = i[0] + 1
+    return movenum
+# prednum = predict_move(model, predict_moves[0])
+# print(prednum)
+
+def fit(model, x_train, y_train, epochs, batch_size):
+    model.fit(x_train, y_train, epochs=epochs, batch_size=batch_size)
+
+def save_json_model_h5_weights(model,modelpath=None,weightspath=None):
+    if(modelpath==None & weightspath==None):
+        print("Nowhere to save!")
+        return
+    elif(weightspath==None):
+        if (os.path.exists(modelpath)):
+            model_json = model.to_json()
+            with open(modelpath, "w") as json_file:
+                json_file.write(model_json)
+        else:
+            print("Bad model path")
+    elif(modelpath==None):
+        if (os.path.exists(weightspath)):
+            model.save_weights(weightspath)
+        else:
+            print("Bad weights path")
+    else:
+        if (os.path.exists(weightspath) & os.path.exists(modelpath)):
+            model_json = model.to_json()
+            with open(modelpath, "w") as json_file:
+                json_file.write(model_json)
+            model.save_weights(weightspath)
+        else:
+            print("Bad weights or model path")
+
+
+
+# def define_move(predictArr):
+#     maxPercentage = 0
+#     global move
+#     for i in enumerate(predictArr[0]):
+#         if (i[1] > maxPercentage):
+#             maxPercentage = i[1]
+#             move = i[0] + 1
+#     print(move)
+#     return move
+#
+# def count_percents(predictArr):
+#     maxPercentage = 0
+#     global move
+#     for i in enumerate(predictArr[0]):
+#         if (i[1] > maxPercentage):
+#             maxPercentage = i[1]
+#             move = i[0] + 1
+#     print(round(maxPercentage * 100, 2), "% this is move № ", move)
