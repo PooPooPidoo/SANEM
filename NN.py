@@ -72,8 +72,7 @@ def set_prepared_prediction_dataset(datapath):
             predict_move = predict_move.reshape((predict_move.shape[0], 24, predict_move.shape[2], 1))
             predict_move = predict_move.astype('float32')
             test_moves.append(predict_move)
-            print(f"move {file[0]+1} added!")
-        print(len(test_moves))
+            # print(f"move {file[0]+1} added!")
         return test_moves # (!)возвращает список таблиц(!)
     else:
         print("Path doesn`t exist")
