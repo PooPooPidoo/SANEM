@@ -2,9 +2,9 @@ import numpy as np
 import os
 import pandas as pd
 import dotenv
-import tensorflow as tf
-from tensorflow import keras
-from tensorflow.keras import layers
+import keras
+from keras import layers
+
 dotenv.load_dotenv("vars.env")
 varpath = dotenv.find_dotenv("vars.env")
 
@@ -53,7 +53,7 @@ def set_train_data(datapath):
         print("Path doesn`t exist")
         return None
 
-# try: x_train = set_train_data("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\movements\\testmoves")
+# try: x_train = set_train_data("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\movements\\train_input")
 # except(UnicodeError, SyntaxError): print("Incorrect path")
 
 def set_prepared_prediction_dataset(datapath):
@@ -76,7 +76,7 @@ def set_prepared_prediction_dataset(datapath):
         return test_moves # (!)возвращает список таблиц(!)
     else:
         print("Path doesn`t exist")
-# predict_moves = set_prepared_prediction_dataset("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\movements\\prediction")
+# predict_moves = set_prepared_prediction_dataset("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\movements\\prediction_input")
 
 def set_y_train(filepath):
     global y_train
@@ -86,11 +86,11 @@ def set_y_train(filepath):
             for line in file.readlines():
                 y_train.append(int(line))
             y_train = keras.utils.to_categorical(y_train)
-        print(len(y_train), y_train)
+        # print(len(y_train), y_train)
         return y_train
     else:
         print("Path doesn`t exist")
-# y_train = set_y_train("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\movements\\prediction_output\\prediction.txt")
+# y_train = set_y_train("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\movements\\train_output\\prediction.txt")
 
 def set_standart_model():
     input = keras.Input(shape=(24, x_train.shape[2], 1))
@@ -129,6 +129,7 @@ def load_model(json_modelpath, h5weightspath=None):
                 return loaded_model
         else:
             print("Bad path")
+            return None
 
 # model = load_model("C:\\Users\\NoMad\\PycharmProjects\\SANEM\\model\\1model.json",
 #            "C:\\Users\\NoMad\\PycharmProjects\\SANEM\\model\\1weights.h5")

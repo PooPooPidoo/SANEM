@@ -17,11 +17,9 @@ def load_data (datapath, dataname, separator):
     table = np.array(table[:, 42:])
     return table
 
-
 def tablesplit (table, quantity):
     cols = np.hsplit(table, indices_or_sections=quantity)
     return cols
-
 
 def formAndSaveFigure (threeDimsTable, name, datapath=None):
     if (datapath != None): os.chdir(datapath)
